@@ -400,20 +400,42 @@ export default function CareerAnalysisDetailPage() {
       </div>
 
       {/* VISUAL TECH STACK OVERLAP COMPARISON CARD */}
-      <div className="glass-panel p-6 rounded-3xl border border-indigo-500/30 space-y-6 bg-slate-900/80 shadow-2xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div
+        className={`glass-panel p-6 rounded-3xl space-y-6 shadow-2xl transition-all ${
+          isLight
+            ? "border border-emerald-400/40 bg-white/95 text-emerald-950"
+            : "border border-indigo-500/30 bg-slate-900/80 text-white"
+        }`}
+      >
+        <div className={`flex flex-wrap items-center justify-between gap-4 border-b pb-4 ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-pink-400" />
+            <TrendingUp className={`w-5 h-5 ${isLight ? "text-emerald-700" : "text-pink-400"}`} />
             <div>
-              <h3 className="text-base font-extrabold text-white">Tech Stack Match Analysis</h3>
-              <p className="text-xs text-slate-400">Your GitHub skills vs. {companyName}'s requirements</p>
+              <h3 className={`text-base font-extrabold ${isLight ? "text-emerald-950" : "text-white"}`}>
+                Tech Stack Match Analysis
+              </h3>
+              <p className={`text-xs ${isLight ? "text-emerald-800 font-medium" : "text-slate-400"}`}>
+                Your GitHub skills vs. {companyName}'s requirements
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-300">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                isLight
+                  ? "bg-emerald-100 text-emerald-950 border-emerald-300"
+                  : "bg-emerald-500/20 border border-emerald-500/40 text-emerald-300"
+              }`}
+            >
               ✓ {overlapSummary.matched_tech?.length || 0} Matched
             </span>
-            <span className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-xs font-bold text-red-300">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                isLight
+                  ? "bg-red-50 text-red-900 border-red-200"
+                  : "bg-red-500/20 border border-red-500/40 text-red-300"
+              }`}
+            >
               ✗ {overlapSummary.missing_tech?.length || 0} Gaps
             </span>
           </div>
@@ -421,7 +443,7 @@ export default function CareerAnalysisDetailPage() {
 
         {/* MUST-HAVE Skills Section */}
         <div className="space-y-3">
-          <div className="text-xs font-extrabold text-white uppercase tracking-widest flex items-center gap-2">
+          <div className={`text-xs font-extrabold uppercase tracking-widest flex items-center gap-2 ${isLight ? "text-emerald-950" : "text-white"}`}>
             <span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
             Must-Have Critical Skills for {companyName}
           </div>
@@ -433,8 +455,12 @@ export default function CareerAnalysisDetailPage() {
                   key={idx}
                   className={`px-3 py-1.5 rounded-xl text-[11px] font-bold font-mono flex items-center gap-1.5 border ${
                     isMatched
-                      ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
-                      : "bg-red-500/10 border-red-500/30 text-red-300"
+                      ? isLight
+                        ? "bg-emerald-100 text-emerald-950 border-emerald-300 shadow-sm"
+                        : "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                      : isLight
+                        ? "bg-red-50 text-red-900 border-red-200"
+                        : "bg-red-500/10 border-red-500/30 text-red-300"
                   }`}
                 >
                   {isMatched ? "✓" : "✗"} {tech}
@@ -447,7 +473,7 @@ export default function CareerAnalysisDetailPage() {
         {/* NICE-TO-HAVE Skills Section */}
         {(overlapSummary.nice_to_have_tech || []).length > 0 && (
           <div className="space-y-3">
-            <div className="text-xs font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <div className={`text-xs font-extrabold uppercase tracking-widest flex items-center gap-2 ${isLight ? "text-emerald-900" : "text-slate-400"}`}>
               <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
               Bonus / Nice-to-Have Skills
             </div>
@@ -459,8 +485,12 @@ export default function CareerAnalysisDetailPage() {
                     key={idx}
                     className={`px-3 py-1.5 rounded-xl text-[11px] font-mono flex items-center gap-1.5 border ${
                       isBonusMatched
-                        ? "bg-blue-500/20 border-blue-500/40 text-blue-300 font-bold"
-                        : "bg-slate-800/80 border-slate-700 text-slate-400"
+                        ? isLight
+                          ? "bg-teal-100 text-teal-950 border-teal-300 font-bold"
+                          : "bg-blue-500/20 border-blue-500/40 text-blue-300 font-bold"
+                        : isLight
+                          ? "bg-slate-100 text-slate-700 border-slate-200"
+                          : "bg-slate-800/80 border-slate-700 text-slate-400"
                     }`}
                   >
                     {isBonusMatched ? "✓" : "○"} {tech}
@@ -472,33 +502,48 @@ export default function CareerAnalysisDetailPage() {
         )}
 
         {/* Quick Legend */}
-        <div className="flex flex-wrap gap-4 pt-2 border-t border-slate-800 text-[10px] text-slate-500">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-500/40 inline-block"></span>You have this skill</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/30 inline-block"></span>Critical gap — add a project using this</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-blue-500/30 inline-block"></span>Bonus skill — you have it!</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-slate-700 inline-block"></span>Bonus skill — not required but helps</span>
+        <div className={`flex flex-wrap gap-4 pt-2 border-t text-[10px] ${isLight ? "border-emerald-200/60 text-emerald-800 font-medium" : "border-slate-800 text-slate-500"}`}>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-500 inline-block"></span>You have this skill</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500 inline-block"></span>Critical gap — add a project using this</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-teal-500 inline-block"></span>Bonus skill — you have it!</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-slate-400 inline-block"></span>Bonus skill — not required but helps</span>
         </div>
       </div>
 
       {/* WHY YOU RECEIVED THIS SCORE EXPLANATION CARD */}
-      <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 space-y-4 bg-indigo-950/20">
+      <div
+        className={`glass-panel p-6 rounded-2xl border space-y-4 transition-all ${
+          isLight
+            ? "border-emerald-400/40 bg-emerald-50/75 text-emerald-950 shadow-md"
+            : "border-indigo-500/30 bg-indigo-950/20 text-white"
+        }`}
+      >
         <div className="flex items-center gap-2">
-          <HelpCircle className="w-5 h-5 text-indigo-400 shrink-0" />
-          <h3 className="text-base font-bold text-white">Why did you receive a {matchScore}% Match Score?</h3>
+          <HelpCircle className={`w-5 h-5 shrink-0 ${isLight ? "text-emerald-700" : "text-indigo-400"}`} />
+          <h3 className={`text-base font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>
+            Why did you receive a {matchScore}% Match Score?
+          </h3>
         </div>
 
-        <p className="text-xs text-slate-300 leading-relaxed font-medium">
+        <p className={`text-xs leading-relaxed font-semibold ${isLight ? "text-emerald-900" : "text-slate-300"}`}>
           {scoreExplanation}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           {scoreBreakdown.map((item: any, idx: number) => (
-            <div key={idx} className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1 text-xs">
+            <div
+              key={idx}
+              className={`p-3 rounded-xl border space-y-1 text-xs transition-all ${
+                isLight
+                  ? "bg-white border-emerald-200/90 shadow-sm"
+                  : "bg-slate-900/80 border-slate-800"
+              }`}
+            >
               <div className="flex items-center justify-between font-bold">
-                <span className="text-white">{item.category}</span>
-                <span className={`font-mono ${item.score_impact?.toString().startsWith('−') || item.score_impact?.toString().startsWith('-') ? 'text-red-400' : 'text-emerald-300'}`}>{item.score_impact}</span>
+                <span className={isLight ? "text-emerald-950" : "text-white"}>{item.category}</span>
+                <span className={`font-mono ${item.score_impact?.toString().startsWith('−') || item.score_impact?.toString().startsWith('-') ? 'text-red-500' : 'text-emerald-600 font-bold'}`}>{item.score_impact}</span>
               </div>
-              <p className="text-slate-400 text-[11px] leading-tight">{item.reason}</p>
+              <p className={`text-[11px] leading-tight ${isLight ? "text-emerald-800/90 font-medium" : "text-slate-400"}`}>{item.reason}</p>
             </div>
           ))}
         </div>
@@ -530,14 +575,33 @@ export default function CareerAnalysisDetailPage() {
                 {realGithubProjects.map((repo: any, idx: number) => {
                   const isAdded = addedProjects.includes(repo.repo_name);
                   return (
-                    <div key={idx} className="glass-panel p-6 rounded-3xl border border-purple-500/40 space-y-5 shadow-2xl relative overflow-hidden bg-slate-900/80">
+                    <div
+                      key={idx}
+                      className={`glass-panel p-6 rounded-3xl space-y-5 shadow-2xl relative overflow-hidden transition-all ${
+                        isLight
+                          ? "border border-emerald-400/40 bg-white/95 text-emerald-950"
+                          : "border border-purple-500/40 bg-slate-900/80 text-white"
+                      }`}
+                    >
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-mono font-bold">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${
+                                isLight
+                                  ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                                  : "bg-purple-500/20 text-purple-300 border-purple-500/40"
+                              }`}
+                            >
                               {repo.language}
                             </span>
-                            <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-mono border ${
+                                isLight
+                                  ? "bg-amber-100/90 text-amber-950 border-amber-300"
+                                  : "bg-slate-800 text-slate-300 border-slate-700"
+                              }`}
+                            >
                               ⭐ {repo.stars} Stars
                             </span>
                           </div>
@@ -545,20 +609,30 @@ export default function CareerAnalysisDetailPage() {
                             href={repo.repo_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xl font-black text-white hover:text-purple-300 transition-colors flex items-center gap-2 group"
+                            className={`text-xl font-black transition-colors flex items-center gap-2 group ${
+                              isLight
+                                ? "text-emerald-950 hover:text-emerald-700"
+                                : "text-white hover:text-purple-300"
+                            }`}
                           >
                             <span>{repo.repo_name}</span>
-                            <span className="text-slate-500 text-xs group-hover:translate-x-0.5 transition-transform">↗</span>
+                            <span className={`text-xs group-hover:translate-x-0.5 transition-transform ${isLight ? "text-emerald-600" : "text-slate-500"}`}>↗</span>
                           </a>
-                          <p className="text-xs text-slate-400">{repo.description}</p>
+                          <p className={`text-xs ${isLight ? "text-emerald-900 font-medium" : "text-slate-400"}`}>
+                            {repo.description}
+                          </p>
                         </div>
 
                         <button
                           onClick={() => addProjectToResume(repo.repo_name, repo.cv_star_bullets)}
                           className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shrink-0 ${
                             isAdded
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                              : "bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/50 shadow-purple-600/20"
+                              ? isLight
+                                ? "bg-emerald-100 text-emerald-900 border border-emerald-400"
+                                : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                              : isLight
+                                ? "bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-700/20 border border-emerald-600"
+                                : "bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/50 shadow-purple-600/20"
                           }`}
                         >
                           {isAdded ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -568,27 +642,40 @@ export default function CareerAnalysisDetailPage() {
 
                       {/* STAR Resume Bullets for Real Repo */}
                       <div className="space-y-2 text-xs">
-                        <div className="font-bold text-white flex items-center justify-between">
+                        <div className={`font-bold flex items-center justify-between ${isLight ? "text-emerald-950" : "text-white"}`}>
                           <span className="flex items-center gap-1.5">
-                            <Award className="w-4 h-4 text-purple-400" />
+                            <Award className={`w-4 h-4 ${isLight ? "text-emerald-700" : "text-purple-400"}`} />
                             <span>STAR Resume Bullets Generated for this Uploaded Repo</span>
                           </span>
-                          <span className="text-[10px] text-slate-500 font-normal">Click icon to copy</span>
+                          <span className={`text-[10px] font-normal ${isLight ? "text-emerald-800 font-semibold" : "text-slate-500"}`}>
+                            Click icon to copy
+                          </span>
                         </div>
 
                         <div className="space-y-2">
                           {repo.cv_star_bullets?.map((bullet: string, bIdx: number) => (
-                            <div key={bIdx} className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
-                              <div className="text-slate-200 leading-relaxed font-medium">
+                            <div
+                              key={bIdx}
+                              className={`p-3.5 rounded-xl flex items-start justify-between gap-3 border transition-all ${
+                                isLight
+                                  ? "bg-emerald-50/90 border-emerald-200/90 shadow-sm"
+                                  : "bg-slate-950/70 border-slate-800"
+                              }`}
+                            >
+                              <div className={`leading-relaxed font-semibold ${isLight ? "text-emerald-950" : "text-slate-200 font-medium"}`}>
                                 • {bullet}
                               </div>
                               <button
                                 onClick={() => handleCopy(bullet)}
-                                className="p-2 rounded-lg bg-slate-800 hover:bg-purple-600/30 text-slate-400 hover:text-purple-300 transition-all shrink-0 border border-slate-700"
+                                className={`p-2 rounded-lg transition-all shrink-0 border ${
+                                  isLight
+                                    ? "bg-white hover:bg-emerald-100 text-emerald-800 hover:text-emerald-950 border-emerald-300 shadow-sm"
+                                    : "bg-slate-800 hover:bg-purple-600/30 text-slate-400 hover:text-purple-300 border-slate-700"
+                                }`}
                                 title="Copy bullet point"
                               >
                                 {copiedBullet === bullet ? (
-                                  <Check className="w-4 h-4 text-emerald-400" />
+                                  <Check className="w-4 h-4 text-emerald-500" />
                                 ) : (
                                   <Copy className="w-4 h-4" />
                                 )}
@@ -610,37 +697,65 @@ export default function CareerAnalysisDetailPage() {
               <div className="flex items-center gap-2">
                 <Rocket className="w-6 h-6 text-pink-400" />
                 <div>
-                  <h2 className="text-2xl font-black text-white">🚀 Recommended Gap-Filling Projects to Add</h2>
-                  <p className="text-xs text-slate-400">
+                  <h2 className={`text-2xl font-black ${isLight ? "text-emerald-950" : "text-white"}`}>
+                    🚀 Recommended Gap-Filling Projects to Add
+                  </h2>
+                  <p className={`text-xs ${isLight ? "text-emerald-900 font-medium" : "text-slate-400"}`}>
                     Add these tailored projects to fill your tech stack gaps specifically for {companyName}
                   </p>
                 </div>
               </div>
 
-              <div className="text-xs font-semibold text-pink-300 bg-pink-500/10 border border-pink-500/30 px-3 py-1.5 rounded-full">
+              <div
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${
+                  isLight
+                    ? "bg-emerald-100 text-emerald-950 border-emerald-300"
+                    : "text-pink-300 bg-pink-500/10 border-pink-500/30"
+                }`}
+              >
                 Click "+ Add Project to My Resume" on any project below
               </div>
             </div>
-
 
             {/* Project Cards Grid */}
             <div className="grid grid-cols-1 gap-6">
               {projects.map((proj: any, idx: number) => {
                 const isAdded = addedProjects.includes(proj.project_title);
                 return (
-                  <div key={idx} className="glass-panel p-6 rounded-3xl border border-pink-500/30 space-y-6 shadow-2xl relative overflow-hidden bg-slate-900/60">
+                  <div
+                    key={idx}
+                    className={`glass-panel p-6 rounded-3xl space-y-6 shadow-2xl relative overflow-hidden transition-all ${
+                      isLight
+                        ? "border border-emerald-500/35 bg-white/95 text-emerald-950"
+                        : "border border-pink-500/30 bg-slate-900/60 text-white"
+                    }`}
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="space-y-1.5 max-w-2xl">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 text-[10px] font-extrabold uppercase tracking-wider">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                              isLight
+                                ? "bg-emerald-100 text-emerald-950 border-emerald-300"
+                                : "bg-pink-500/20 border-pink-500/40 text-pink-300"
+                            }`}
+                          >
                             {proj.domain_tag}
                           </span>
-                          <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-mono border ${
+                              isLight
+                                ? "bg-slate-100 text-slate-800 border-slate-300"
+                                : "bg-slate-800 text-slate-300 border-slate-700"
+                            }`}
+                          >
                             Difficulty: {proj.difficulty}
                           </span>
                         </div>
-                        <h3 className="text-xl font-black text-white">{proj.project_title}</h3>
-                        <p className="text-xs text-indigo-300 font-medium">
+                        <h3 className={`text-xl font-black ${isLight ? "text-emerald-950" : "text-white"}`}>
+                          {proj.project_title}
+                        </h3>
+                        <p className={`text-xs font-semibold ${isLight ? "text-teal-900" : "text-indigo-300 font-medium"}`}>
                           🎯 {proj.target_company_relevance}
                         </p>
                       </div>
@@ -650,8 +765,12 @@ export default function CareerAnalysisDetailPage() {
                         onClick={() => addProjectToResume(proj.project_title, proj.cv_star_bullets)}
                         className={`px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shrink-0 ${
                           isAdded
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                            : "bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white hover:opacity-90 shadow-pink-600/30"
+                            ? isLight
+                              ? "bg-emerald-100 text-emerald-900 border border-emerald-400"
+                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                            : isLight
+                              ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 text-white shadow-emerald-600/20 hover:opacity-95"
+                              : "bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white hover:opacity-90 shadow-pink-600/30"
                         }`}
                       >
                         {isAdded ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -661,46 +780,76 @@ export default function CareerAnalysisDetailPage() {
 
                     {/* Tech Stack Chips */}
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="text-xs font-bold text-slate-400 mr-2 self-center">Tech Stack:</span>
+                      <span className={`text-xs font-bold mr-2 self-center ${isLight ? "text-emerald-900" : "text-slate-400"}`}>
+                        Tech Stack:
+                      </span>
                       {proj.tech_stack?.map((tech: string, tIdx: number) => (
-                        <span key={tIdx} className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 text-pink-300 text-xs font-mono font-semibold">
+                        <span
+                          key={tIdx}
+                          className={`px-2.5 py-1 rounded-lg border text-xs font-mono font-bold ${
+                            isLight
+                              ? "bg-emerald-50 text-emerald-950 border-emerald-300 shadow-sm"
+                              : "bg-slate-950 border-slate-700 text-pink-300"
+                          }`}
+                        >
                           {tech}
                         </span>
                       ))}
                     </div>
 
                     {/* Target Architecture */}
-                    <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5 text-xs">
-                      <div className="font-bold text-slate-300 flex items-center gap-1.5">
-                        <FileText className="w-4 h-4 text-indigo-400" />
+                    <div
+                      className={`p-4 rounded-xl border space-y-1.5 text-xs ${
+                        isLight
+                          ? "bg-emerald-50/75 border-emerald-200/90 text-emerald-950"
+                          : "bg-slate-950/80 border-slate-800 text-slate-300"
+                      }`}
+                    >
+                      <div className={`font-bold flex items-center gap-1.5 ${isLight ? "text-emerald-950" : "text-slate-300"}`}>
+                        <FileText className={`w-4 h-4 ${isLight ? "text-teal-700" : "text-indigo-400"}`} />
                         <span>Architecture Overview</span>
                       </div>
-                      <p className="text-slate-400 leading-relaxed">{proj.architecture_overview}</p>
+                      <p className={`leading-relaxed ${isLight ? "text-emerald-900/90 font-medium" : "text-slate-400"}`}>
+                        {proj.architecture_overview}
+                      </p>
                     </div>
 
                     {/* Copyable STAR Resume Bullet Points */}
                     <div className="space-y-3 text-xs">
-                      <div className="font-bold text-white flex items-center justify-between">
+                      <div className={`font-bold flex items-center justify-between ${isLight ? "text-emerald-950" : "text-white"}`}>
                         <span className="flex items-center gap-1.5">
-                          <Award className="w-4 h-4 text-pink-400" />
+                          <Award className={`w-4 h-4 ${isLight ? "text-emerald-700" : "text-pink-400"}`} />
                           <span>STAR Resume Bullet Points (Ready to Copy to Resume)</span>
                         </span>
-                        <span className="text-[10px] text-slate-400 font-normal">Click icon to copy</span>
+                        <span className={`text-[10px] font-normal ${isLight ? "text-emerald-800 font-semibold" : "text-slate-400"}`}>
+                          Click icon to copy
+                        </span>
                       </div>
 
                       <div className="space-y-2">
                         {proj.cv_star_bullets?.map((bullet: string, bIdx: number) => (
-                          <div key={bIdx} className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-pink-500/40 transition-all flex items-start justify-between gap-3 group">
-                            <div className="text-slate-200 leading-relaxed font-medium">
+                          <div
+                            key={bIdx}
+                            className={`p-3.5 rounded-xl border transition-all flex items-start justify-between gap-3 group ${
+                              isLight
+                                ? "bg-white border-emerald-200/90 shadow-sm hover:border-emerald-400"
+                                : "bg-slate-950/60 border-slate-800 hover:border-pink-500/40"
+                            }`}
+                          >
+                            <div className={`leading-relaxed font-semibold ${isLight ? "text-emerald-950" : "text-slate-200 font-medium"}`}>
                               • {bullet}
                             </div>
                             <button
                               onClick={() => handleCopy(bullet)}
-                              className="p-2 rounded-lg bg-slate-800 hover:bg-pink-600/30 text-slate-400 hover:text-pink-300 transition-all shrink-0 border border-slate-700"
+                              className={`p-2 rounded-lg transition-all shrink-0 border ${
+                                isLight
+                                  ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-800 hover:text-emerald-950 border-emerald-300 shadow-sm"
+                                  : "bg-slate-800 hover:bg-pink-600/30 text-slate-400 hover:text-pink-300 border-slate-700"
+                              }`}
                               title="Copy bullet point"
                             >
                               {copiedBullet === bullet ? (
-                                <Check className="w-4 h-4 text-emerald-400" />
+                                <Check className="w-4 h-4 text-emerald-500" />
                               ) : (
                                 <Copy className="w-4 h-4" />
                               )}
@@ -711,26 +860,38 @@ export default function CareerAnalysisDetailPage() {
                     </div>
 
                     {/* Interview Defense Script */}
-                    <div className="p-5 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 space-y-3 text-xs">
-                      <div className="font-extrabold text-indigo-300 flex items-center gap-2 text-sm">
-                        <MessageSquare className="w-4 h-4 text-indigo-400" />
+                    <div
+                      className={`p-5 rounded-2xl border space-y-3 text-xs ${
+                        isLight
+                          ? "bg-teal-50/80 border-teal-300/70 text-emerald-950 shadow-sm"
+                          : "bg-indigo-950/30 border-indigo-500/30 text-slate-300"
+                      }`}
+                    >
+                      <div className={`font-extrabold flex items-center gap-2 text-sm ${isLight ? "text-teal-950" : "text-indigo-300"}`}>
+                        <MessageSquare className={`w-4 h-4 ${isLight ? "text-teal-700" : "text-indigo-400"}`} />
                         <span>How to Explain this Project in {companyName} Technical Interviews</span>
                       </div>
 
-                      <div className="space-y-2 text-slate-300">
+                      <div className="space-y-2">
                         <div>
-                          <span className="font-bold text-white">1. Elevator Pitch: </span>
-                          <p className="text-slate-400 italic pt-0.5">"{proj.interview_explanation_script?.elevator_pitch}"</p>
+                          <span className={`font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>1. Elevator Pitch: </span>
+                          <p className={`italic pt-0.5 ${isLight ? "text-emerald-900 font-medium" : "text-slate-400"}`}>
+                            "{proj.interview_explanation_script?.elevator_pitch}"
+                          </p>
                         </div>
 
                         <div>
-                          <span className="font-bold text-white">2. Key Technical Trade-off Made: </span>
-                          <p className="text-slate-400 italic pt-0.5">"{proj.interview_explanation_script?.key_technical_tradeoff}"</p>
+                          <span className={`font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>2. Key Technical Trade-off Made: </span>
+                          <p className={`italic pt-0.5 ${isLight ? "text-emerald-900 font-medium" : "text-slate-400"}`}>
+                            "{proj.interview_explanation_script?.key_technical_tradeoff}"
+                          </p>
                         </div>
 
                         <div>
-                          <span className="font-bold text-white">3. Quantified Impact Metric: </span>
-                          <p className="text-slate-400 italic pt-0.5">"{proj.interview_explanation_script?.quantified_result}"</p>
+                          <span className={`font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>3. Quantified Impact Metric: </span>
+                          <p className={`italic pt-0.5 ${isLight ? "text-emerald-900 font-medium" : "text-slate-400"}`}>
+                            "{proj.interview_explanation_script?.quantified_result}"
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -744,16 +905,30 @@ export default function CareerAnalysisDetailPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-pink-400" />
-                <h2 className="text-xl font-bold text-white">Skill Matrix & Suggested Additions</h2>
+                <Award className={`w-5 h-5 ${isLight ? "text-emerald-700" : "text-pink-400"}`} />
+                <h2 className={`text-xl font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>
+                  Skill Matrix &amp; Suggested Additions
+                </h2>
               </div>
-              <span className="text-xs text-slate-400">Click "+ Add" to append skill to live CV</span>
+              <span className={`text-xs ${isLight ? "text-emerald-800 font-semibold" : "text-slate-400"}`}>
+                Click "+ Add" to append skill to live CV
+              </span>
             </div>
 
-            <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+            <div
+              className={`glass-panel rounded-2xl overflow-hidden shadow-xl border ${
+                isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950" : "border-slate-800"
+              }`}
+            >
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                  <thead
+                    className={`uppercase tracking-wider font-bold border-b ${
+                      isLight
+                        ? "bg-emerald-50 text-emerald-950 border-emerald-200"
+                        : "bg-slate-900/90 text-slate-400 border-slate-800"
+                    }`}
+                  >
                     <tr>
                       <th className="p-4">Skill / Technology</th>
                       <th className="p-4">Category</th>
@@ -763,45 +938,86 @@ export default function CareerAnalysisDetailPage() {
                       <th className="p-4 text-right">Add to Resume</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 text-slate-300 font-medium">
+                  <tbody
+                    className={`divide-y font-medium ${
+                      isLight
+                        ? "divide-emerald-100 text-emerald-950"
+                        : "divide-slate-800/60 text-slate-300"
+                    }`}
+                  >
                     {skillMatrix.map((item: any, idx: number) => {
                       const isAdded = addedSkills.includes(item.skill_name);
                       return (
-                        <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
-                          <td className="p-4 font-bold text-white flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-pink-500" />
-                            <span>{item.skill_name}</span>
+                        <tr
+                          key={idx}
+                          className={`transition-colors ${
+                            isLight ? "hover:bg-emerald-50/70" : "hover:bg-slate-800/40"
+                          }`}
+                        >
+                          <td className="p-4 font-bold flex items-center gap-2">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                isLight ? "bg-emerald-600" : "bg-pink-500"
+                              }`}
+                            />
+                            <span className={isLight ? "text-emerald-950" : "text-white"}>
+                              {item.skill_name}
+                            </span>
                           </td>
-                          <td className="p-4 text-slate-400">{item.category}</td>
+                          <td className={`p-4 ${isLight ? "text-emerald-800 font-medium" : "text-slate-400"}`}>
+                            {item.category}
+                          </td>
                           <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${
-                              item.mastery_level === "Advanced"
-                                ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                                : item.mastery_level === "Intermediate"
-                                ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                                : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                            }`}>
+                            <span
+                              className={`px-2.5 py-1 rounded-md text-[11px] font-bold border ${
+                                item.mastery_level === "Advanced"
+                                  ? isLight
+                                    ? "bg-purple-100 text-purple-900 border-purple-300"
+                                    : "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                                  : item.mastery_level === "Intermediate"
+                                  ? isLight
+                                    ? "bg-teal-100 text-teal-900 border-teal-300"
+                                    : "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
+                                  : isLight
+                                  ? "bg-amber-100 text-amber-950 border-amber-300"
+                                  : "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                              }`}
+                            >
                               {item.mastery_level}
                             </span>
                           </td>
                           <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${
-                              item.status === "Mastered"
-                                ? "bg-emerald-500/20 text-emerald-300"
-                                : item.status === "Skill Gap to Fill"
-                                ? "bg-red-500/20 text-red-300"
-                                : "bg-amber-500/20 text-amber-300"
-                            }`}>
+                            <span
+                              className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${
+                                item.status === "Mastered"
+                                  ? isLight
+                                    ? "bg-emerald-100 text-emerald-950 border border-emerald-300"
+                                    : "bg-emerald-500/20 text-emerald-300"
+                                  : item.status === "Skill Gap to Fill"
+                                  ? isLight
+                                    ? "bg-red-50 text-red-900 border border-red-200"
+                                    : "bg-red-500/20 text-red-300"
+                                  : isLight
+                                  ? "bg-amber-100 text-amber-950 border border-amber-300"
+                                  : "bg-amber-500/20 text-amber-300"
+                              }`}
+                            >
                               {item.status}
                             </span>
                           </td>
-                          <td className="p-4 font-semibold text-slate-200">{item.company_relevance}</td>
+                          <td className={`p-4 font-semibold ${isLight ? "text-emerald-950" : "text-slate-200"}`}>
+                            {item.company_relevance}
+                          </td>
                           <td className="p-4 text-right">
                             <button
                               onClick={() => toggleSkillInResume(item.skill_name)}
-                              className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 ml-auto transition-all ${
+                              className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 ml-auto transition-all border ${
                                 isAdded
-                                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                                  ? isLight
+                                    ? "bg-emerald-100 text-emerald-900 border-emerald-400"
+                                    : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                                  : isLight
+                                  ? "bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-600 shadow-sm"
                                   : "bg-pink-600/20 hover:bg-pink-600/40 text-pink-300 border border-pink-500/40"
                               }`}
                             >
@@ -821,8 +1037,8 @@ export default function CareerAnalysisDetailPage() {
           {/* SECTION 3: COMPANY INTERVIEW ROUNDS ROADMAP */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-400" />
-              <h2 className="text-xl font-bold text-white">
+              <Layers className={`w-5 h-5 ${isLight ? "text-teal-700" : "text-indigo-400"}`} />
+              <h2 className={`text-xl font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>
                 {companyName} — Expected Interview Rounds Breakdown
               </h2>
             </div>
@@ -833,41 +1049,80 @@ export default function CareerAnalysisDetailPage() {
                 return (
                   <div
                     key={idx}
-                    className="glass-panel rounded-2xl border border-slate-800 overflow-hidden transition-all"
+                    className={`glass-panel rounded-2xl overflow-hidden transition-all border ${
+                      isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-md" : "border-slate-800"
+                    }`}
                   >
                     <button
                       onClick={() => setOpenRoundIndex(isOpen ? null : idx)}
-                      className="w-full p-5 text-left flex items-center justify-between hover:bg-slate-800/40 transition-colors"
+                      className={`w-full p-5 text-left flex items-center justify-between transition-colors ${
+                        isLight ? "hover:bg-emerald-50/70" : "hover:bg-slate-800/40"
+                      }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-pink-600/20 border border-pink-500/40 text-pink-300 font-extrabold text-xs flex items-center justify-center shrink-0">
+                        <div
+                          className={`w-8 h-8 rounded-xl font-extrabold text-xs flex items-center justify-center shrink-0 border ${
+                            isLight
+                              ? "bg-emerald-100 text-emerald-950 border-emerald-300"
+                              : "bg-pink-600/20 border-pink-500/40 text-pink-300"
+                          }`}
+                        >
                           R{round.round_number}
                         </div>
                         <div>
-                          <div className="text-base font-bold text-white">{round.title}</div>
-                          <div className="text-xs text-slate-400">Duration: {round.duration}</div>
+                          <div className={`text-base font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>
+                            {round.title}
+                          </div>
+                          <div className={`text-xs ${isLight ? "text-emerald-800 font-medium" : "text-slate-400"}`}>
+                            Duration: {round.duration}
+                          </div>
                         </div>
                       </div>
                       {isOpen ? (
-                        <ChevronUp className="w-5 h-5 text-slate-400" />
+                        <ChevronUp className={`w-5 h-5 ${isLight ? "text-emerald-700" : "text-slate-400"}`} />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-slate-400" />
+                        <ChevronDown className={`w-5 h-5 ${isLight ? "text-emerald-700" : "text-slate-400"}`} />
                       )}
                     </button>
 
                     {isOpen && (
-                      <div className="p-5 pt-0 border-t border-slate-800/60 space-y-4 text-xs">
+                      <div
+                        className={`p-5 pt-0 border-t space-y-4 text-xs ${
+                          isLight ? "border-emerald-100" : "border-slate-800/60"
+                        }`}
+                      >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                           <div className="space-y-1">
-                            <div className="font-bold text-indigo-300 uppercase tracking-wider text-[10px]">Round Focus</div>
-                            <div className="text-slate-300">{round.focus}</div>
+                            <div
+                              className={`font-bold uppercase tracking-wider text-[10px] ${
+                                isLight ? "text-emerald-800" : "text-indigo-300"
+                              }`}
+                            >
+                              Round Focus
+                            </div>
+                            <div className={isLight ? "text-emerald-950 font-medium" : "text-slate-300"}>
+                              {round.focus}
+                            </div>
                           </div>
 
                           <div className="space-y-1">
-                            <div className="font-bold text-pink-300 uppercase tracking-wider text-[10px]">Key Technical Topics</div>
+                            <div
+                              className={`font-bold uppercase tracking-wider text-[10px] ${
+                                isLight ? "text-teal-800" : "text-pink-300"
+                              }`}
+                            >
+                              Key Technical Topics
+                            </div>
                             <div className="flex flex-wrap gap-1.5 pt-1">
                               {round.key_topics?.map((topic: string, tIdx: number) => (
-                                <span key={tIdx} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-mono border border-slate-700">
+                                <span
+                                  key={tIdx}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-mono border ${
+                                    isLight
+                                      ? "bg-emerald-50 text-emerald-950 border-emerald-200 font-bold"
+                                      : "bg-slate-800 text-slate-300 border-slate-700"
+                                  }`}
+                                >
                                   {topic}
                                 </span>
                               ))}
@@ -875,11 +1130,21 @@ export default function CareerAnalysisDetailPage() {
                           </div>
                         </div>
 
-                        <div className="p-3.5 rounded-xl bg-slate-900 border border-pink-500/20 text-slate-300 flex items-start gap-2">
-                          <Sparkles className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" />
+                        <div
+                          className={`p-3.5 rounded-xl border flex items-start gap-2 ${
+                            isLight
+                              ? "bg-emerald-50/90 border-emerald-300 text-emerald-950"
+                              : "bg-slate-900 border-pink-500/20 text-slate-300"
+                          }`}
+                        >
+                          <Sparkles className={`w-4 h-4 shrink-0 mt-0.5 ${isLight ? "text-emerald-700" : "text-pink-400"}`} />
                           <div>
-                            <span className="font-bold text-white">Tactical Preparation Tip: </span>
-                            {round.preparation_tips}
+                            <span className={`font-bold ${isLight ? "text-emerald-950" : "text-white"}`}>
+                              Tactical Preparation Tip:{" "}
+                            </span>
+                            <span className={isLight ? "text-emerald-900 font-medium" : "text-slate-300"}>
+                              {round.preparation_tips}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -897,18 +1162,22 @@ export default function CareerAnalysisDetailPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-pink-400" />
+              <h2 className={`text-xl font-bold flex items-center gap-2 ${isLight ? "text-emerald-950" : "text-white"}`}>
+                <Edit3 className={`w-5 h-5 ${isLight ? "text-emerald-700" : "text-pink-400"}`} />
                 <span>Live Interactive Rebuilt Resume Studio</span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className={`text-xs ${isLight ? "text-emerald-800 font-medium" : "text-slate-400"}`}>
                 Tailored specifically for {companyName} ({jobRole}). Edit directly or click "+ Add Project" to insert projects.
               </p>
             </div>
 
             <button
               onClick={handleExport}
-              className="px-4 py-2 rounded-xl bg-pink-600 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-pink-500 transition-all shadow-md shadow-pink-600/20"
+              className={`px-4 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
+                isLight
+                  ? "bg-emerald-700 hover:bg-emerald-800 shadow-emerald-700/20"
+                  : "bg-pink-600 hover:bg-pink-500 shadow-pink-600/20"
+              }`}
             >
               <Download className="w-4 h-4" />
               <span>Download Rebuilt Resume (.MD)</span>
@@ -917,36 +1186,60 @@ export default function CareerAnalysisDetailPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column: Live Editable Markdown Editor */}
-            <div className="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-pink-300 flex items-center gap-1.5">
+            <div
+              className={`glass-panel p-5 rounded-2xl space-y-3 border ${
+                isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-lg" : "border-slate-800"
+              }`}
+            >
+              <div className={`flex items-center justify-between border-b pb-3 ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
+                <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? "text-emerald-900" : "text-pink-300"}`}>
                   <Edit3 className="w-4 h-4" />
                   <span>Resume Content Editor</span>
                 </span>
-                <span className="text-[10px] text-slate-500 font-mono">Markdown Format</span>
+                <span className={`text-[10px] font-mono ${isLight ? "text-emerald-700" : "text-slate-500"}`}>
+                  Markdown Format
+                </span>
               </div>
 
               <textarea
                 value={resumeContent}
                 onChange={(e) => setResumeContent(e.target.value)}
-                className="w-full h-[600px] bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-200 font-mono focus:outline-none focus:border-pink-500/60 leading-relaxed resize-none"
+                className={`w-full h-[600px] rounded-xl p-4 text-xs font-mono focus:outline-none leading-relaxed resize-none border ${
+                  isLight
+                    ? "bg-emerald-50/40 border-emerald-300 text-emerald-950 focus:border-emerald-600 shadow-inner"
+                    : "bg-slate-950 border-slate-800 text-slate-200 focus:border-pink-500/60"
+                }`}
               />
             </div>
 
             {/* Right Column: Real-time Rendered CV Preview Card */}
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 bg-slate-950/80">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+            <div
+              className={`glass-panel p-6 rounded-2xl space-y-4 border ${
+                isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-xl" : "border-slate-800 bg-slate-950/80"
+              }`}
+            >
+              <div className={`flex items-center justify-between border-b pb-3 ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
+                <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? "text-teal-900" : "text-indigo-300"}`}>
                   <Eye className="w-4 h-4" />
                   <span>Live Rendered Resume Preview</span>
                 </span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                    isLight
+                      ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                      : "bg-emerald-500/20 text-emerald-300"
+                  }`}
+                >
                   {companyName} Optimized
                 </span>
               </div>
 
               <div className="prose prose-invert max-w-none text-xs leading-relaxed space-y-4 overflow-y-auto max-h-[580px] pr-2">
-                <div className="whitespace-pre-wrap font-sans text-slate-300">
+                <div
+                  className={`whitespace-pre-wrap font-sans ${
+                    isLight ? "text-emerald-950 font-medium" : "text-slate-300"
+                  }`}
+                >
                   {resumeContent}
                 </div>
               </div>

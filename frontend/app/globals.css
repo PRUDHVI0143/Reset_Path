@@ -254,17 +254,57 @@ html.light .border-purple-500\/40{ border-color: rgba(20, 184, 166, 0.40) !impor
 html.light .text-purple-300      { color: #0f766e !important; }
 html.light .text-purple-400      { color: #0d9488 !important; }
 
-/* Light mode background surface overrides */
-html.light .bg-slate-900         { background-color: rgba(255, 255, 255, 0.88) !important; }
-html.light .bg-slate-900\/90     { background-color: rgba(255, 255, 255, 0.92) !important; }
-html.light .bg-slate-900\/80     { background-color: rgba(255, 255, 255, 0.88) !important; }
-html.light .bg-slate-900\/60     { background-color: rgba(255, 255, 255, 0.82) !important; }
-html.light .bg-slate-900\/50     { background-color: rgba(255, 255, 255, 0.78) !important; }
-html.light .bg-slate-800         { background-color: rgba(240, 253, 244, 0.92) !important; }
-html.light .bg-slate-950         { background-color: rgba(255, 255, 255, 0.88) !important; }
+/* Light mode background surface overrides — wildcard coverage for all opacities */
+html.light [class*="bg-slate-950"],
+html.light [class*="bg-slate-900"],
+html.light [class*="bg-slate-800"],
+html.light [class*="bg-indigo-950"] {
+  background-color: #ffffff !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
 
-html.light .border-slate-800     { border-color: rgba(16, 185, 129, 0.28) !important; }
-html.light .border-slate-700     { border-color: rgba(16, 185, 129, 0.35) !important; }
+html.light [class*="bg-slate-950/70"],
+html.light [class*="bg-slate-950/60"],
+html.light [class*="bg-slate-950/80"],
+html.light [class*="bg-slate-900/80"],
+html.light [class*="bg-slate-900/60"],
+html.light [class*="bg-indigo-950/30"],
+html.light [class*="bg-indigo-950/20"] {
+  background-color: rgba(240, 253, 244, 0.95) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(0, 40, 15, 0.04) !important;
+}
+
+/* Light mode text colors — high contrast dark botanical green */
+html.light .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #032612 !important;
+}
+
+html.light .text-slate-400,
+html.light .text-slate-500 {
+  color: #0d592f !important;
+}
+
+/* Light mode button overrides */
+html.light [class*="bg-purple-600/30"],
+html.light [class*="bg-purple-600"] {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important;
+  border-color: rgba(5, 150, 105, 0.50) !important;
+  color: #ffffff !important;
+}
+
+html.light [class*="text-purple-200"] {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-700 {
+  border-color: rgba(16, 185, 129, 0.30) !important;
+}
 
 /* ============================================================
    NAVBAR — theme aware
