@@ -4,8 +4,13 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPRUDHVI0143%2FReset_Path&root-directory=frontend)
 
 **Reset Path** is an autonomous AI career acceleration and CV rebuilding platform that matches your real GitHub code mastery with any target company. It extracts your real public repositories, analyzes tech stack alignment, computes company culture & engineering bar fit scores, provides customized STAR resume bullet points, and generates end-to-end interview defense scripts.
+
+### 🚀 1-Click Deploy on Vercel
+Click the button above or import `https://github.com/PRUDHVI0143/Reset_Path` into [Vercel](https://vercel.com/new). When prompted for **Root Directory**, choose `frontend`.
+
 
 ### 🌟 Features
 - **Dual Dynamic Video Themes**: Day Mode (Lush Green Nature) & Night Mode (Cyberpunk Developer Room) with smooth video crossfade.
