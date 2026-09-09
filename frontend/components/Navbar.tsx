@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Briefcase, Sun, Moon, Compass } from "lucide-react";
+import Image from "next/image";
+import { Sparkles, Briefcase, Sun, Moon } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
 export default function Navbar() {
@@ -13,13 +14,20 @@ export default function Navbar() {
       {/* Logo: Reset Path */}
       <Link href="/" className="flex items-center gap-3 group">
         <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all group-hover:scale-105 ${
+          className={`relative w-10 h-10 rounded-full overflow-hidden flex items-center justify-center shadow-lg transition-all group-hover:scale-110 border ${
             isLight
-              ? "bg-gradient-to-tr from-emerald-600 via-teal-600 to-green-500 shadow-emerald-500/25"
-              : "bg-gradient-to-tr from-pink-600 via-purple-600 to-indigo-500 shadow-pink-500/25"
+              ? "border-emerald-400/60 shadow-emerald-500/25 bg-white"
+              : "border-purple-500/40 shadow-purple-500/25 bg-slate-900"
           }`}
         >
-          <Compass className="w-6 h-6 text-white" />
+          <Image
+            src="/logo.png"
+            alt="Reset Path Logo"
+            width={40}
+            height={40}
+            priority
+            className="w-full h-full object-cover"
+          />
         </div>
         <div>
           <span className="text-xl font-extrabold tracking-tight gradient-text">

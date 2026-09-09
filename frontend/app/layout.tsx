@@ -7,6 +7,13 @@ export const metadata = {
   title: "Reset Path — GitHub CV Rebuilder & Interview AI",
   description:
     "Rebuild your CV for any company using your real GitHub projects. Get tailored project suggestions, tech stack match scores, and interview preparation powered by Reset Path AI.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
