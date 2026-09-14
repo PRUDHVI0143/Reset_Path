@@ -30,13 +30,21 @@ import {
   Printer,
   Mic
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { fetchCareerAnalysisById, exportCareerGuide } from "@/lib/api";
 import { useTheme } from "@/components/ThemeProvider";
-import SkillRadarChart from "@/components/SkillRadarChart";
 import AtsScannerCard from "@/components/AtsScannerCard";
-import InterviewSimulatorModal from "@/components/InterviewSimulatorModal";
 import ShareReportModal from "@/components/ShareReportModal";
 import ClassicAtsResume from "@/components/ClassicAtsResume";
+
+const SkillRadarChart = dynamic(() => import("@/components/SkillRadarChart"), {
+  ssr: false,
+  loading: () => <div className="h-72 rounded-3xl animate-pulse bg-slate-800/30 flex items-center justify-center text-xs text-slate-400">Loading skill benchmark radar...</div>
+});
+
+const InterviewSimulatorModal = dynamic(() => import("@/components/InterviewSimulatorModal"), {
+  ssr: false
+});
 
 export default function CareerAnalysisDetailPage() {
   const { theme } = useTheme();

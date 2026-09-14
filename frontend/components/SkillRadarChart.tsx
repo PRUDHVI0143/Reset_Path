@@ -28,8 +28,27 @@ interface SkillRadarChartProps {
 export default function SkillRadarChart({ data, companyName }: SkillRadarChartProps) {
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!data || data.length === 0) return null;
+
+  if (!mounted) {
+    return (
+      <div
+        className={`p-6 rounded-3xl backdrop-blur-md border h-80 flex items-center justify-center ${
+          isLight
+            ? "bg-white/80 border-emerald-300/60"
+            : "bg-slate-900/80 border-purple-500/30"
+        }`}
+      >
+        <div className="text-xs text-slate-400 animate-pulse">Initializing benchmark radar chart...</div>
+      </div>
+    );
+  }
 
   return (
     <div

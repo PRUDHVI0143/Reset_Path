@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAnalysis } from "@/lib/career-service";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
