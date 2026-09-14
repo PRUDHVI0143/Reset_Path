@@ -25,10 +25,18 @@ import {
   Edit3,
   HelpCircle,
   TrendingUp,
-  Rocket
+  Rocket,
+  Share2,
+  Printer,
+  Mic
 } from "lucide-react";
 import { fetchCareerAnalysisById, exportCareerGuide } from "@/lib/api";
 import { useTheme } from "@/components/ThemeProvider";
+import SkillRadarChart from "@/components/SkillRadarChart";
+import AtsScannerCard from "@/components/AtsScannerCard";
+import InterviewSimulatorModal from "@/components/InterviewSimulatorModal";
+import ShareReportModal from "@/components/ShareReportModal";
+import ClassicAtsResume from "@/components/ClassicAtsResume";
 
 export default function CareerAnalysisDetailPage() {
   const { theme } = useTheme();
@@ -41,9 +49,12 @@ export default function CareerAnalysisDetailPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"prep" | "resume">("prep");
+  const [resumeViewMode, setResumeViewMode] = useState<"classic" | "markdown">("classic");
   const [copiedBullet, setCopiedBullet] = useState<string | null>(null);
   const [openRoundIndex, setOpenRoundIndex] = useState<number | null>(0);
   const [exporting, setExporting] = useState(false);
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Live Resume Studio state
   const [resumeContent, setResumeContent] = useState<string>("");
@@ -267,18 +278,62 @@ export default function CareerAnalysisDetailPage() {
           </button>
         </div>
 
-        <button
-          onClick={handleExport}
-          disabled={exporting}
-          className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-lg disabled:opacity-50 ${
-            isLight
-              ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 shadow-emerald-600/25 hover:from-emerald-700 hover:to-green-700"
-              : "bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 shadow-pink-600/20 hover:from-pink-700 hover:to-indigo-700"
-          }`}
-        >
-          <Download className="w-4 h-4" />
-          <span>{exporting ? "Exporting..." : "Download Tailored CV & Guide (.MD)"}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => setIsInterviewModalOpen(true)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all hover:scale-[1.02] ${
+              isLight
+                ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-emerald-700/20"
+                : "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-pink-500/25"
+            }`}
+          >
+            <Mic className="w-3.5 h-3.5" />
+            <span>AI Mock Interview</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-white/20 tracking-wider">
+              Speech
+            </span>
+          </button>
+
+          <button
+            onClick={() => setIsShareModalOpen(true)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
+              isLight
+                ? "bg-white text-emerald-950 border-emerald-300 hover:bg-emerald-50"
+                : "bg-slate-900 text-purple-200 border-purple-600/50 hover:bg-slate-800"
+            }`}
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>Share</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab("resume");
+              setTimeout(() => window.print(), 350);
+            }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
+              isLight
+                ? "bg-white text-emerald-950 border-emerald-300 hover:bg-emerald-50"
+                : "bg-slate-900 text-slate-200 border-slate-700 hover:bg-slate-800"
+            }`}
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>PDF Resume</span>
+          </button>
+
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className={`px-4 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-md disabled:opacity-50 ${
+              isLight
+                ? "bg-emerald-700 hover:bg-emerald-800"
+                : "bg-slate-800 hover:bg-slate-700 border border-slate-700"
+            }`}
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{exporting ? "..." : "Guide (.MD)"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Hero Overview Header */}
@@ -398,6 +453,23 @@ export default function CareerAnalysisDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 5-AXIS RADAR CHART BENCHMARK */}
+      {result.radar_data && (
+        <SkillRadarChart
+          data={result.radar_data}
+          companyName={companyName}
+        />
+      )}
+
+      {/* ATS RESUME KEYWORD SCANNER CARD */}
+      <AtsScannerCard
+        atsScore={result.ats_scanner?.ats_score || Math.min(95, Math.round(matchScore * 0.95))}
+        matchedKeywords={result.ats_scanner?.matched_keywords || overlapSummary.matched_tech || []}
+        missingKeywords={result.ats_scanner?.missing_keywords || overlapSummary.missing_tech || []}
+        companyName={companyName}
+        onInjectSkill={toggleSkillInResume}
+      />
 
       {/* VISUAL TECH STACK OVERLAP COMPARISON CARD */}
       <div
@@ -1171,82 +1243,184 @@ export default function CareerAnalysisDetailPage() {
               </p>
             </div>
 
-            <button
-              onClick={handleExport}
-              className={`px-4 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
-                isLight
-                  ? "bg-emerald-700 hover:bg-emerald-800 shadow-emerald-700/20"
-                  : "bg-pink-600 hover:bg-pink-500 shadow-pink-600/20"
-              }`}
-            >
-              <Download className="w-4 h-4" />
-              <span>Download Rebuilt Resume (.MD)</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2 no-print">
+              {/* Template Switcher */}
+              <div
+                className={`flex items-center p-1 rounded-xl border text-xs font-bold ${
+                  isLight ? "bg-white border-emerald-300 shadow-sm" : "bg-slate-900 border-slate-700"
+                }`}
+              >
+                <button
+                  onClick={() => setResumeViewMode("classic")}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    resumeViewMode === "classic"
+                      ? "bg-[#1D4ED8] text-white shadow-sm"
+                      : isLight
+                      ? "text-slate-600 hover:text-emerald-950"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Classic ATS Template (Image Layout)
+                </button>
+                <button
+                  onClick={() => setResumeViewMode("markdown")}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    resumeViewMode === "markdown"
+                      ? isLight
+                        ? "bg-emerald-700 text-white shadow-sm"
+                        : "bg-pink-600 text-white shadow-sm"
+                      : isLight
+                      ? "text-slate-600 hover:text-emerald-950"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Split Markdown Editor
+                </button>
+              </div>
+
+              <button
+                onClick={() => window.print()}
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
+                  isLight
+                    ? "bg-white text-emerald-950 border border-emerald-300 hover:bg-emerald-50"
+                    : "bg-slate-900 text-slate-200 border border-slate-700 hover:bg-slate-800"
+                }`}
+              >
+                <Printer className="w-4 h-4 text-emerald-500" />
+                <span>Print / Save as PDF (ATS Ready)</span>
+              </button>
+
+              <button
+                onClick={handleExport}
+                className={`px-4 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
+                  isLight
+                    ? "bg-emerald-700 hover:bg-emerald-800 shadow-emerald-700/20"
+                    : "bg-pink-600 hover:bg-pink-500 shadow-pink-600/20"
+                }`}
+              >
+                <Download className="w-4 h-4" />
+                <span>Download (.MD)</span>
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column: Live Editable Markdown Editor */}
-            <div
-              className={`glass-panel p-5 rounded-2xl space-y-3 border ${
-                isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-lg" : "border-slate-800"
-              }`}
-            >
-              <div className={`flex items-center justify-between border-b pb-3 ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
-                <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? "text-emerald-900" : "text-pink-300"}`}>
-                  <Edit3 className="w-4 h-4" />
-                  <span>Resume Content Editor</span>
-                </span>
-                <span className={`text-[10px] font-mono ${isLight ? "text-emerald-700" : "text-slate-500"}`}>
-                  Markdown Format
-                </span>
-              </div>
-
-              <textarea
-                value={resumeContent}
-                onChange={(e) => setResumeContent(e.target.value)}
-                className={`w-full h-[600px] rounded-xl p-4 text-xs font-mono focus:outline-none leading-relaxed resize-none border ${
-                  isLight
-                    ? "bg-emerald-50/40 border-emerald-300 text-emerald-950 focus:border-emerald-600 shadow-inner"
-                    : "bg-slate-950 border-slate-800 text-slate-200 focus:border-pink-500/60"
-                }`}
+          {/* VIEW 1: CLASSIC ATS RESUME (EXACT MATCH FOR USER IMAGE TEMPLATE) */}
+          {resumeViewMode === "classic" && (
+            <div className="resume-print-container py-4">
+              <ClassicAtsResume
+                name={github.name || github.username}
+                githubUsername={github.username}
+                targetCompany={companyName}
+                jobRole={jobRole}
+                primaryLanguages={github.primary_languages || ["Python", "TypeScript"]}
+                skills={{
+                  languages: github.primary_languages?.join(", ") || "Python, C++, Java",
+                  frameworks: "HTML, CSS, React.js, Next.js, Node.js, Tailwind CSS",
+                  tools: "Git, GitHub Actions, Docker, Linux, SQLite, PostgreSQL, Data Structures & Algorithms",
+                  backend: "Python, FastAPI, Node.js, REST APIs, Microservices",
+                  softSkills: "Technical Leadership, Problem Solving, Clean Architecture, Adaptability"
+                }}
+                projects={[
+                  ...(result.real_github_projects || []).map((p: any) => ({
+                    title: p.repo_name,
+                    githubUrl: p.repo_url,
+                    date: "Nov 2025",
+                    bullets: p.cv_star_bullets || [p.description]
+                  })),
+                  ...(result.project_recommendations || []).map((p: any) => ({
+                    title: p.project_title,
+                    date: "Tailored Project",
+                    bullets: p.cv_star_bullets || []
+                  }))
+                ]}
               />
             </div>
+          )}
 
-            {/* Right Column: Real-time Rendered CV Preview Card */}
-            <div
-              className={`glass-panel p-6 rounded-2xl space-y-4 border ${
-                isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-xl" : "border-slate-800 bg-slate-950/80"
-              }`}
-            >
-              <div className={`flex items-center justify-between border-b pb-3 ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
-                <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? "text-teal-900" : "text-indigo-300"}`}>
-                  <Eye className="w-4 h-4" />
-                  <span>Live Rendered Resume Preview</span>
-                </span>
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+          {/* VIEW 2: SPLIT MARKDOWN EDITOR */}
+          {resumeViewMode === "markdown" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column: Live Editable Markdown Editor */}
+              <div
+                className={`glass-panel p-5 rounded-2xl space-y-3 border no-print ${
+                  isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-lg" : "border-slate-800"
+                }`}
+              >
+                <div className={`flex items-center justify-between border-b pb-3 ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
+                  <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? "text-emerald-900" : "text-pink-300"}`}>
+                    <Edit3 className="w-4 h-4" />
+                    <span>Resume Content Editor</span>
+                  </span>
+                  <span className={`text-[10px] font-mono ${isLight ? "text-emerald-700" : "text-slate-500"}`}>
+                    Markdown Format
+                  </span>
+                </div>
+
+                <textarea
+                  value={resumeContent}
+                  onChange={(e) => setResumeContent(e.target.value)}
+                  className={`w-full h-[600px] rounded-xl p-4 text-xs font-mono focus:outline-none leading-relaxed resize-none border ${
                     isLight
-                      ? "bg-emerald-100 text-emerald-900 border-emerald-300"
-                      : "bg-emerald-500/20 text-emerald-300"
+                      ? "bg-emerald-50/40 border-emerald-300 text-emerald-950 focus:border-emerald-600 shadow-inner"
+                      : "bg-slate-950 border-slate-800 text-slate-200 focus:border-pink-500/60"
                   }`}
-                >
-                  {companyName} Optimized
-                </span>
+                />
               </div>
 
-              <div className="prose prose-invert max-w-none text-xs leading-relaxed space-y-4 overflow-y-auto max-h-[580px] pr-2">
-                <div
-                  className={`whitespace-pre-wrap font-sans ${
-                    isLight ? "text-emerald-950 font-medium" : "text-slate-300"
-                  }`}
-                >
-                  {resumeContent}
+              {/* Right Column: Real-time Rendered CV Preview Card */}
+              <div
+                className={`glass-panel p-6 rounded-2xl space-y-4 border ${
+                  isLight ? "border-emerald-300/80 bg-white/95 text-emerald-950 shadow-xl" : "border-slate-800 bg-slate-950/80"
+                }`}
+              >
+                <div className={`flex items-center justify-between border-b pb-3 no-print ${isLight ? "border-emerald-200/60" : "border-slate-800"}`}>
+                  <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? "text-teal-900" : "text-indigo-300"}`}>
+                    <Eye className="w-4 h-4" />
+                    <span>Live Rendered Resume Preview</span>
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                      isLight
+                        ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                        : "bg-emerald-500/20 text-emerald-300"
+                    }`}
+                  >
+                    {companyName} Optimized
+                  </span>
+                </div>
+
+                <div className="prose prose-invert max-w-none text-xs leading-relaxed space-y-4 overflow-y-auto max-h-[580px] pr-2">
+                  <div
+                    className={`whitespace-pre-wrap font-sans ${
+                      isLight ? "text-emerald-950 font-medium" : "text-slate-300"
+                    }`}
+                  >
+                    {resumeContent}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
+
+      {/* AI Mock Technical Interview Defense Simulator Modal */}
+      <InterviewSimulatorModal
+        isOpen={isInterviewModalOpen}
+        onClose={() => setIsInterviewModalOpen(false)}
+        questions={result.mock_interview_questions || []}
+        companyName={companyName}
+      />
+
+      {/* Share Report Modal */}
+      <ShareReportModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        reportId={id}
+        candidateName={github.name || github.username}
+        companyName={companyName}
+        matchScore={matchScore}
+      />
     </div>
   );
 }

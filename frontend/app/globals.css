@@ -378,3 +378,176 @@ html.dark ::selection {
   background: rgba(236, 72, 153, 0.40);
   color: #fff;
 }
+
+/* ============================================================
+   MICRO-ANIMATIONS & GLOW UTILITIES
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.25); }
+  50% { box-shadow: 0 0 28px rgba(236, 72, 153, 0.55), 0 0 45px rgba(99, 102, 241, 0.35); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulseGlow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.hover-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.18) 25%,
+    transparent 30%
+  );
+  transform: rotate(30deg);
+  transition: transform 0.8s ease;
+}
+.btn-shine:hover::after {
+  transform: rotate(30deg) translate(80%, 80%);
+}
+
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.4), rgba(99, 102, 241, 0.4));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ============================================================
+   ATS RESUME PRINT MEDIA STYLES (@media print)
+   ============================================================ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+
+  /* Hide all web application chrome */
+  nav,
+  header,
+  footer,
+  .theme-toggle,
+  video,
+  .no-print,
+  button,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* Resume print layout */
+  .resume-print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border: none !important;
+    color: #111827 !important;
+  }
+
+  .resume-print-container h1 {
+    font-size: 20pt !important;
+    font-weight: bold !important;
+    margin-bottom: 4pt !important;
+    color: #000000 !important;
+  }
+
+  .resume-print-container h2 {
+    font-size: 12pt !important;
+    font-weight: bold !important;
+    border-bottom: 1.5pt solid #333333 !important;
+    padding-bottom: 2pt !important;
+    margin-top: 10pt !important;
+    margin-bottom: 4pt !important;
+    text-transform: uppercase !important;
+    color: #000000 !important;
+  }
+
+  .resume-print-container h3 {
+    font-size: 11pt !important;
+    font-weight: bold !important;
+    margin-top: 6pt !important;
+    margin-bottom: 2pt !important;
+  }
+
+  .resume-print-container p,
+  .resume-print-container li {
+    font-size: 10pt !important;
+    line-height: 1.35 !important;
+    color: #1f2937 !important;
+  }
+
+  .resume-print-container ul {
+    margin-top: 2pt !important;
+    margin-bottom: 6pt !important;
+    padding-left: 14pt !important;
+  }
+
+  @page {
+    margin: 0.5in;
+    size: letter;
+  }
+}

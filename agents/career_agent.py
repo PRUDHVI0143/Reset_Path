@@ -5,6 +5,8 @@ import httpx
 from typing import Dict, Any, List, Optional
 from duckduckgo_search import DDGS
 
+import re
+
 logger = logging.getLogger("career_agent")
 
 class CareerAgent:
@@ -18,21 +20,45 @@ class CareerAgent:
     5. Tailored CV project recommendations with copyable STAR bullet points & interview explanation scripts.
     """
 
+    def _clean_username(self, username_or_url: str) -> str:
+        clean = username_or_url.strip()
+        clean = re.sub(r"^https?://", "", clean, flags=re.IGNORECASE)
+        clean = re.sub(r"^github\.com/", "", clean, flags=re.IGNORECASE)
+        clean = clean.split("?")[0].split("#")[0]
+        clean = clean.strip("/").replace("@", "")
+        parts = [p for p in clean.split("/") if p]
+        return parts[0] if parts else username_or_url.strip()
+
+    def _infer_tech_from_text(self, text: str) -> str:
+        lower = text.lower()
+        if any(k in lower for k in ["anomaly", "machine-learning", "dataset", "deep learning", "classification", "social-media"]):
+            return "Python / ML"
+        if any(k in lower for k in ["android", "andriod"]):
+            return "Java / Android"
+        if any(k in lower for k in ["react", "nextjs", "next.js"]):
+            return "React.js"
+        if any(k in lower for k in ["web", "login", "portfolio", "frontend"]):
+            return "JavaScript / Web"
+        if any(k in lower for k in ["api", "fastapi", "backend"]):
+            return "Python / FastAPI"
+        return ""
+
     async def fetch_github_profile(self, username_or_url: str) -> Dict[str, Any]:
-        username = username_or_url.strip().rstrip("/").split("/")[-1].replace("@", "")
+        username = self._clean_username(username_or_url)
         
         url = f"https://api.github.com/users/{username}"
-        repos_url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page=15"
+        repos_url = f"https://api.github.com/users/{username}/repos?sort=pushed&per_page=30"
 
         headers = {
-            "User-Agent": "ResearchMind-AI-CareerAgent/1.0",
-            "Accept": "application/vnd.github.v3+json"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ResetPath/1.0",
+            "Accept": "application/vnd.github.v3+json, text/html, */*"
         }
 
         user_data = {}
         repos_data = []
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=12.0, follow_redirects=True) as client:
+            # 1. Try REST API first
             try:
                 res = await client.get(url, headers=headers)
                 if res.status_code == 200:
@@ -47,14 +73,51 @@ class CareerAgent:
             except Exception as e:
                 logger.warning(f"GitHub repos API fetch error: {e}")
 
-        # Fallback if GitHub API fails or user not found
+            # 2. If API was rate limited (HTTP 403) or failed to get repos, scrape public GitHub HTML!
+            if not repos_data or not isinstance(repos_data, list):
+                try:
+                    scrape_url = f"https://github.com/{username}?tab=repositories"
+                    r_scrape = await client.get(scrape_url, headers=headers)
+                    if r_scrape.status_code == 200:
+                        repo_blocks = re.findall(r'<li[^>]*itemprop="owns"[^>]*>(.*?)</li>', r_scrape.text, re.DOTALL)
+                        scraped_repos = []
+                        for b in repo_blocks:
+                            name_m = re.search(r'itemprop="name codeRepository"[^>]*>\s*([^\s<]+)', b)
+                            if not name_m:
+                                name_m = re.search(r'href="/' + username + r'/([^"/]+)"', b)
+                            if not name_m:
+                                continue
+                            r_name = name_m.group(1).strip()
+                            
+                            desc_m = re.search(r'itemprop="description"[^>]*>\s*([^<]+)', b)
+                            r_desc = desc_m.group(1).strip() if desc_m else ""
+                            
+                            lang_m = re.search(r'itemprop="programmingLanguage"[^>]*>\s*([^<]+)', b)
+                            r_lang = lang_m.group(1).strip() if lang_m else self._infer_tech_from_text(f"{r_name} {r_desc}")
+                            
+                            star_m = re.search(r'href="/' + username + r'/[^/]+/stargazers"[^>]*>\s*([0-9]+)', b)
+                            r_stars = int(star_m.group(1)) if star_m else 0
+                            
+                            scraped_repos.append({
+                                "name": r_name,
+                                "description": r_desc or f"Open source project by {username}",
+                                "language": r_lang or "Software Engineering",
+                                "stargazers_count": r_stars,
+                                "html_url": f"https://github.com/{username}/{r_name}"
+                            })
+                        if scraped_repos:
+                            repos_data = scraped_repos
+                except Exception as scrape_err:
+                    logger.warning(f"GitHub scrape fallback warning: {scrape_err}")
+
+        # Fallback metadata if user details API was rate limited
         if not user_data or "login" not in user_data:
             user_data = {
                 "login": username,
                 "name": username.capitalize(),
-                "bio": "Software Engineer & Open Source Contributor",
-                "public_repos": len(repos_data) or 8,
-                "followers": 12,
+                "bio": "Software Engineer & Open Source Developer",
+                "public_repos": len(repos_data) or 5,
+                "followers": 10,
                 "avatar_url": f"https://github.com/{username}.png"
             }
 
@@ -63,23 +126,23 @@ class CareerAgent:
         top_projects = []
 
         for repo in repos_data:
-            lang = repo.get("language")
+            lang = repo.get("language") or self._infer_tech_from_text(f"{repo.get('name', '')} {repo.get('description', '')}")
             if lang:
                 languages_count[lang] = languages_count.get(lang, 0) + 1
             
             top_projects.append({
                 "name": repo.get("name"),
-                "description": repo.get("description") or "Open source project",
-                "language": repo.get("language") or "Python / TypeScript",
-                "stars": repo.get("stargazers_count", 0),
-                "url": repo.get("html_url") or f"https://github.com/{username}/{repo.get('name', 'project')}"
+                "description": repo.get("description") or f"Open source software project by @{username}",
+                "language": lang or "Software Development",
+                "stars": repo.get("stargazers_count") or repo.get("stars", 0),
+                "url": repo.get("html_url") or repo.get("url") or f"https://github.com/{username}/{repo.get('name', 'project')}"
             })
 
         # Calculate primary skills from repos
         sorted_langs = sorted(languages_count.items(), key=lambda x: x[1], reverse=True)
         detected_languages = [l[0] for l in sorted_langs] if sorted_langs else ["Python", "TypeScript", "JavaScript", "SQL"]
 
-        # Fallback top_projects if repos_data is empty or rate limited
+        # Fallback top_projects if no repos found at all
         if not top_projects:
             top_projects = [
                 {
@@ -102,11 +165,11 @@ class CareerAgent:
             "username": username,
             "name": user_data.get("name") or username,
             "avatar_url": user_data.get("avatar_url") or f"https://github.com/{username}.png",
-            "bio": user_data.get("bio") or "Full Stack Developer",
+            "bio": user_data.get("bio") or "Software Engineer",
             "public_repos": user_data.get("public_repos", len(top_projects)),
             "followers": user_data.get("followers", 0),
             "primary_languages": detected_languages,
-            "top_projects": top_projects[:5]
+            "top_projects": top_projects[:10]
         }
 
 
@@ -199,7 +262,10 @@ class CareerAgent:
 
         # Company-specific fallbacks (used ONLY when web search returns almost nothing)
         if len(must_have) < 3:
-            if any(x in company_lower for x in ["capgemini", "tcs", "infosys", "wipro", "cognizant"]):
+            if "openai" in company_lower or "ai" in role_lower or "ml" in role_lower:
+                must_have    = ["Python", "PyTorch / ML", "Deep Learning / Transformers", "Distributed Systems", "CUDA / GPU Programming"]
+                nice_to_have = ["TensorFlow", "FastAPI", "Kubernetes", "C++", "RLHF / Fine-Tuning"]
+            elif any(x in company_lower for x in ["capgemini", "tcs", "infosys", "wipro", "cognizant"]):
                 must_have    = ["Java", "Spring Boot", "SQL / Databases", "Microservices", "REST APIs"]
                 nice_to_have = ["Docker", "Kubernetes", "AWS Cloud", "Angular", "Hibernate"]
             elif any(x in company_lower for x in ["google", "meta", "apple"]):
@@ -321,7 +387,8 @@ class CareerAgent:
             "swift":             ["swift"],
             "scala":             ["scala", "java"],
             "rust":              ["rust"],
-            "pytorch / ml":      ["python", "jupyter", "pytorch", "ml"],
+            "deep learning / transformers": ["python", "ml", "deep learning", "transformers", "detection", "anomaly", "dataset"],
+            "pytorch / ml":      ["python", "jupyter", "pytorch", "ml", "detection", "anomaly", "dataset", "learning"],
             "tensorflow":        ["python", "jupyter", "tensorflow"],
             "cuda / gpu programming": ["c++", "cuda"],
             "linux / unix":      ["bash", "shell", "makefile"],
@@ -707,7 +774,72 @@ Results-driven {job_role} with expertise in {', '.join(user_langs[:3])}. Demonst
             ],
             "skill_matrix": skill_matrix,
             "interview_rounds": company_info.get("rounds", []),
-            "project_recommendations": project_recommendations
+            "project_recommendations": project_recommendations,
+            "radar_data": [
+                {
+                    "dimension": "Language Mastery",
+                    "candidateScore": min(95, max(50, 50 + len(user_langs) * 10)),
+                    "companyBar": 85,
+                    "fullMark": 100
+                },
+                {
+                    "dimension": "System Design",
+                    "candidateScore": min(92, max(40, 82 if any("system" in m.lower() or "distributed" in m.lower() for m in critical_matched) else 58)),
+                    "companyBar": 90,
+                    "fullMark": 100
+                },
+                {
+                    "dimension": "Domain Mastery",
+                    "candidateScore": min(95, max(45, int((len(critical_matched) / max(1, len(must_have_tech))) * 100))),
+                    "companyBar": 85,
+                    "fullMark": 100
+                },
+                {
+                    "dimension": "Testing & CI/CD",
+                    "candidateScore": min(90, max(40, 80 if ("test" in user_tech_corpus or "docker" in user_tech_corpus or "ci" in user_tech_corpus) else 52)),
+                    "companyBar": 80,
+                    "fullMark": 100
+                },
+                {
+                    "dimension": "Architecture Defense",
+                    "candidateScore": min(94, max(55, 60 + min(30, len(user_repos) * 5))),
+                    "companyBar": 85,
+                    "fullMark": 100
+                }
+            ],
+            "ats_scanner": {
+                "ats_score": min(96, max(35, int((len(critical_matched) / max(1, len(must_have_tech))) * 80 + (15 if bonus_matched else 5)))),
+                "matched_keywords": critical_matched + bonus_matched,
+                "missing_keywords": critical_missing + bonus_missing,
+                "critical_gap_keywords": critical_missing,
+                "action_recommendation": f"Inject missing keywords ({', '.join(critical_missing[:3])}) into your resume bullet points to pass {company_name}'s automated ATS screening filters." if critical_missing else f"Outstanding! Your verified skills cover 100% of {company_name}'s critical ATS filter keywords."
+            },
+            "mock_interview_questions": [
+                {
+                    "id": "mock_1",
+                    "round": "Round 4: CV Project Deep-Dive",
+                    "question": f"In your repository '{real_github_projects[0]['repo_name'] if real_github_projects else 'main project'}', what was the most difficult architectural bottleneck you encountered, and what technical trade-off did you make?",
+                    "context": f"Targeting candidate's actual GitHub project: {real_github_projects[0]['repo_name'] if real_github_projects else 'GitHub Project'} ({real_github_projects[0]['language'] if real_github_projects else user_langs[0]})",
+                    "key_points_to_mention": [
+                        "State the initial problem clearly using quantifiable metrics (e.g. latency, memory footprint).",
+                        f"Explain why you selected {real_github_projects[0]['language'] if real_github_projects else user_langs[0]} and what alternatives you discarded.",
+                        "Highlight your testing methodology and final outcome."
+                    ],
+                    "model_answer": f"In this project, the primary challenge was optimizing execution throughput while keeping code decoupled. I chose a modular architecture in {real_github_projects[0]['language'] if real_github_projects else user_langs[0]} to allow independent unit testing. The key trade-off was accepting minor abstraction overhead to gain maintainability and prevent regressions."
+                },
+                {
+                    "id": "mock_2",
+                    "round": "Round 3: High-Level System Design",
+                    "question": f"How would you design a scalable service for {company_name} that needs to handle 10,000 requests per second with sub-50ms latency?",
+                    "context": f"Tailored for {company_name}'s core engineering standards",
+                    "key_points_to_mention": [
+                        "Clarify functional vs non-functional requirements (throughput, availability vs consistency).",
+                        "Propose API gateway, Redis caching layer, and asynchronous worker queues.",
+                        "Discuss database sharding and read replicas."
+                    ],
+                    "model_answer": "I would start with an API Gateway implementing sliding-window rate limiting, fronted by a Redis read-through caching cluster to serve 85%+ of read requests in under 5ms. Write operations would be ingested asynchronously through Kafka/RabbitMQ to protect the primary PostgreSQL database from connection exhaustion."
+                }
+            ]
         }
 
 

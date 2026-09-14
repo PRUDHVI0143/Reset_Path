@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import VideoBackground from "@/components/VideoBackground";
+import QuickGuideModal from "@/components/QuickGuideModal";
 
 export const metadata = {
   title: "Reset Path — GitHub CV Rebuilder & Interview AI",
@@ -40,6 +41,9 @@ export default function RootLayout({
 
           <Navbar />
           <main className="min-h-[calc(100vh-65px)]">{children}</main>
+
+          {/* Floating 'How to Use' Pop Guide on the Right */}
+          <QuickGuideModal />
         </ThemeProvider>
       </body>
     </html>
