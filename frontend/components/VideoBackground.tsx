@@ -81,6 +81,16 @@ export default function VideoBackground() {
             : "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 100%)",
         }}
       />
+
+      {/* Soft bottom-right corner gradient to seamlessly blend corner watermark */}
+      <div
+        className="absolute bottom-0 right-0 w-64 h-36 pointer-events-none transition-opacity duration-700"
+        style={{
+          background: isLight
+            ? "radial-gradient(ellipse at bottom right, rgba(220,252,231,0.65) 0%, transparent 75%)"
+            : "radial-gradient(ellipse at bottom right, rgba(2,4,10,0.85) 0%, transparent 75%)",
+        }}
+      />
     </div>
   );
 }
