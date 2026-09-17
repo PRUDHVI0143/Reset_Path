@@ -10,8 +10,24 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { github_username, company_name, job_role, job_description } = body;
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      // Fallback: handle unescaped backslashes if input was malformed (e.g. copy-pasted Windows paths)
+      try {
+        const raw = await req.text();
+        const sanitized = raw.replace(/\\([^"\\\/bfnrtu])/g, "\\\\$1");
+        body = JSON.parse(sanitized);
+      } catch {
+        return NextResponse.json(
+          { detail: "Invalid JSON format in request payload. Please check your inputs." },
+          { status: 400 }
+        );
+      }
+    }
+
+    const { github_username, company_name, job_role, job_description } = body || {};
 
     if (!github_username || !company_name) {
       return NextResponse.json(

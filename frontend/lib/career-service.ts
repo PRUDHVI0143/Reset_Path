@@ -59,14 +59,9 @@ function getTmpCachePath(id: string): string {
 }
 
 export function cleanGitHubInput(input: string): string {
-  let clean = input.trim();
-  // Remove protocol
-  clean = clean.replace(/^https?:\/\//i, "");
-  // Remove domain
-  clean = clean.replace(/^github\.com\//i, "");
-  // Remove query params or hashes
+  let clean = input.trim().replace(/\\/g, "/");
+  clean = clean.replace(/^https?:\/\//i, "").replace(/^github\.com\//i, "");
   clean = clean.split("?")[0].split("#")[0];
-  // Remove leading @ or trailing slashes
   clean = clean.replace(/^@/, "").replace(/\/+$/, "");
   // Take username portion if URL path (e.g. /username/repos -> username)
   const parts = clean.split("/").filter(Boolean);
