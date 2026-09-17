@@ -818,26 +818,82 @@ Results-driven {job_role} with expertise in {', '.join(user_langs[:3])}. Demonst
                 {
                     "id": "mock_1",
                     "round": "Round 4: CV Project Deep-Dive",
+                    "category": "Project Defense",
+                    "difficulty": "Senior",
                     "question": f"In your repository '{real_github_projects[0]['repo_name'] if real_github_projects else 'main project'}', what was the most difficult architectural bottleneck you encountered, and what technical trade-off did you make?",
                     "context": f"Targeting candidate's actual GitHub project: {real_github_projects[0]['repo_name'] if real_github_projects else 'GitHub Project'} ({real_github_projects[0]['language'] if real_github_projects else user_langs[0]})",
+                    "expected_concepts": [real_github_projects[0]['language'] if real_github_projects else user_langs[0], "bottleneck", "trade-off", "latency", "throughput", "testing", "architecture"],
+                    "anti_patterns_to_watch": ["claiming no bottlenecks existed", "blaming dependencies without metrics"],
                     "key_points_to_mention": [
                         "State the initial problem clearly using quantifiable metrics (e.g. latency, memory footprint).",
                         f"Explain why you selected {real_github_projects[0]['language'] if real_github_projects else user_langs[0]} and what alternatives you discarded.",
                         "Highlight your testing methodology and final outcome."
                     ],
-                    "model_answer": f"In this project, the primary challenge was optimizing execution throughput while keeping code decoupled. I chose a modular architecture in {real_github_projects[0]['language'] if real_github_projects else user_langs[0]} to allow independent unit testing. The key trade-off was accepting minor abstraction overhead to gain maintainability and prevent regressions."
+                    "model_answer": f"In this project, the primary challenge was optimizing execution throughput while keeping code decoupled. I chose a modular architecture in {real_github_projects[0]['language'] if real_github_projects else user_langs[0]} to allow independent unit testing. The key trade-off was accepting minor abstraction overhead to gain maintainability and prevent regressions.",
+                    "follow_up_prompts": [
+                        "If traffic increased by 50x overnight, where would the next system bottleneck appear?",
+                        "How did you write regression tests to ensure this fix wouldn't break during future releases?"
+                    ]
                 },
                 {
                     "id": "mock_2",
                     "round": "Round 3: High-Level System Design",
+                    "category": "System Design",
+                    "difficulty": "Senior",
                     "question": f"How would you design a scalable service for {company_name} that needs to handle 10,000 requests per second with sub-50ms latency?",
                     "context": f"Tailored for {company_name}'s core engineering standards",
+                    "expected_concepts": ["api gateway", "redis", "caching", "rate limiting", "kafka", "queue", "sharding", "read replicas", "latency"],
+                    "anti_patterns_to_watch": ["single point of failure database", "synchronous blocking calls", "ignoring cache stampedes"],
                     "key_points_to_mention": [
                         "Clarify functional vs non-functional requirements (throughput, availability vs consistency).",
                         "Propose API gateway, Redis caching layer, and asynchronous worker queues.",
                         "Discuss database sharding and read replicas."
                     ],
-                    "model_answer": "I would start with an API Gateway implementing sliding-window rate limiting, fronted by a Redis read-through caching cluster to serve 85%+ of read requests in under 5ms. Write operations would be ingested asynchronously through Kafka/RabbitMQ to protect the primary PostgreSQL database from connection exhaustion."
+                    "model_answer": "I would start with an API Gateway implementing sliding-window rate limiting, fronted by a Redis read-through caching cluster to serve 85%+ of read requests in under 5ms. Write operations would be ingested asynchronously through Kafka/RabbitMQ to protect the primary PostgreSQL database from connection exhaustion.",
+                    "follow_up_prompts": [
+                        "How do you handle cache invalidation when a database write fails?",
+                        "What is your strategy if the Redis master node crashes?"
+                    ]
+                },
+                {
+                    "id": "mock_3",
+                    "round": "Round 2: Low-Level Coding & Concurrency",
+                    "category": "Coding & Concurrency",
+                    "difficulty": "Mid-Level",
+                    "question": f"How do you handle race conditions and thread safety when multiple workers update shared state in {user_langs[0] if user_langs else 'Python'}?",
+                    "context": "Technical deep-dive on clean concurrency, locks, and atomic state",
+                    "expected_concepts": ["race condition", "mutex", "lock", "atomic", "optimistic locking", "pessimistic locking", "redis", "deadlock"],
+                    "anti_patterns_to_watch": ["simple boolean flags without memory barriers", "infinite retry loops without exponential backoff"],
+                    "key_points_to_mention": [
+                        "Differentiate optimistic vs pessimistic locking.",
+                        "Discuss distributed locks with Redis (Redlock) or atomic DB transactions.",
+                        "Mention idempotency keys."
+                    ],
+                    "model_answer": f"For local processes, I use mutex locks or atomic primitives to prevent concurrent state corruption. In distributed systems, I prefer optimistic locking with version timestamps or distributed locks using Redis SETNX with automatic TTLs to avoid deadlocks.",
+                    "follow_up_prompts": [
+                        "What happens if a worker acquires a Redis distributed lock, but crashes before releasing it?",
+                        "When would you prefer optimistic locking over pessimistic locking?"
+                    ]
+                },
+                {
+                    "id": "mock_4",
+                    "round": "Round 5: Engineering Leadership & Cultural Fit",
+                    "category": "Behavioral & STAR",
+                    "difficulty": "Senior",
+                    "question": f"Tell me about a time you strongly disagreed with a teammate or technical lead on an architectural decision. How did you resolve it?",
+                    "context": f"Alignment with {company_name}'s engineering values",
+                    "expected_concepts": ["disagreement", "trade-offs", "data", "benchmark", "prototype", "consensus", "disagree and commit"],
+                    "anti_patterns_to_watch": ["criticizing colleague personally", "passive-aggressive avoidance", "refusing to align"],
+                    "key_points_to_mention": [
+                        "Situation: Describe the architectural disagreement objectively.",
+                        "Action: Built a proof-of-concept (PoC) or benchmarked data rather than arguing opinions.",
+                        "Result: Disagree and commit once a decision was made."
+                    ],
+                    "model_answer": f"During an API design phase, my colleague favored synchronous HTTP calls while I proposed an event-driven queue. Rather than debating, I built a quick load-testing script simulating traffic spikes. The data demonstrated that synchronous calls failed at 2,000 QPS, so we aligned on the queue approach with mutual trust.",
+                    "follow_up_prompts": [
+                        "If leadership still chose the alternate path, how would you align the team?",
+                        "How do you encourage junior engineers to voice dissent constructively?"
+                    ]
                 }
             ]
         }
